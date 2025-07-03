@@ -1,0 +1,65 @@
+"use client"
+import { Navigate } from "react-router-dom"
+import { useAuth } from "./helpers/useAuth"
+
+// Layouts
+import MainLayout from "./components/MainLayout"
+
+// Pages
+import LoginPage from "./pages/LoginPage"
+import RegisterPage from "./pages/RegisterPage"
+import DashboardPage from "./pages/DashboardPage"
+import UploadPage from "./pages/UploadPage"
+import ContractDetailPage from "./pages/ContractDetailPage"
+import SettingsPage from "./pages/SettingsPage"
+import NotFoundPage from "./pages/NotFoundPage"
+import AuthCallback from "./pages/AuthCallback"
+import Success from "./pages/Success"
+import ContractPreview from "./components/ContractPreview"
+
+// Auth guard component
+const AuthGuard = ({ children }) => {
+  const { isAuthenticated } = useAuth()
+  return isAuthenticated ? children : <Navigate to="/login" replace />
+}
+
+export const routes = [
+  // Public routes
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/success",
+    element: <Success />,
+  },
+  {
+    path:"/auth/callback",
+    element: <AuthCallback />
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
+  },
+
+  // Protected routes
+  {
+    path: "/",
+    element: (
+      // <AuthGuard>
+        <MainLayout />
+      // </AuthGuard>
+    ),
+    children: [
+      { path: "", element: <Navigate to="/dashboard" replace /> },
+      { path: "dashboard", element: <DashboardPage /> },
+      { path: "upload", element: <UploadPage /> },
+      { path: "contracts/:id", element: <ContractDetailPage /> },
+      // { path: "contracts", element: <ContractPreview /> },
+      { path: "settings", element: <SettingsPage /> },
+    ],
+  },
+
+  // 404 route
+  { path: "*", element: <NotFoundPage /> },
+]
