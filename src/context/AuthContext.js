@@ -93,7 +93,7 @@ export function AuthProvider({ children }) {
       }
 
       const data = await response.json()
-      localStorage.setItem("token", data.token)
+      localStorage.setItem("token", data.data.token)
       checkAuth();
     } catch (error) {
       console.error("Login error:", error)
@@ -118,9 +118,9 @@ export function AuthProvider({ children }) {
       if (!response.ok) {
         throw new Error("Registration failed")
       }
-
       const data = await response.json()
-      localStorage.setItem("token", data.token)
+
+      localStorage.setItem("token", data.data.token)
       checkAuth();
     } catch (error) {
       console.error("Registration error:", error)

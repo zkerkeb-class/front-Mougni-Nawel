@@ -15,21 +15,22 @@ function Button({
   ...props
 }) {
   const baseClasses =
-    "inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+    "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
 
   const variants = {
-    primary: "bg-gray-900 hover:bg-gray-800 text-white",
-    secondary: "bg-white border border-gray-300 hover:bg-gray-50 text-gray-700",
-    danger: "bg-red-600 hover:bg-red-700 text-white",
-    success: "bg-green-600 hover:bg-green-700 text-white",
-    warning: "bg-amber-500 hover:bg-amber-600 text-white",
+    primary: "bg-gray-800 hover:bg-gray-700 text-white shadow-sm hover:shadow-md",
+    secondary: "bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 shadow-sm hover:shadow-md",
+    metallic: "bg-gradient-to-br from-gray-200 to-gray-400 text-gray-800 border border-gray-300 hover:from-gray-300 hover:to-gray-500 shadow-sm hover:shadow-md",
+    danger: "bg-red-500 hover:bg-red-600 text-white shadow-sm hover:shadow-md",
+    success: "bg-green-500 hover:bg-green-600 text-white shadow-sm hover:shadow-md",
+    warning: "bg-amber-400 hover:bg-amber-500 text-gray-800 shadow-sm hover:shadow-md"
   }
 
   const sizes = {
-    sm: "py-1 px-3 text-xs",
+    sm: "py-1.5 px-3 text-xs",
     md: "py-2 px-4 text-sm",
-    lg: "py-2 px-6 text-base",
-    xl: "py-3 px-8 text-lg",
+    lg: "py-3 px-6 text-base",
+    xl: "py-4 px-8 text-lg"
   }
 
   const widthClass = fullWidth ? "w-full" : ""

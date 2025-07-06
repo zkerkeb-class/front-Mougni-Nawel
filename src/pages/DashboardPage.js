@@ -11,6 +11,41 @@ function DashboardPage() {
     getAllContracts()
   }, [getAllContracts])
 
+  // Fonction pour générer un titre intelligent
+  const generateSmartTitle = (contract) => {
+    // Si le contrat a déjà un titre, l'utiliser
+    if (contract.title && contract.title.trim() !== '') {
+      return contract.title
+    }
+
+    // Essayer d'extraire un titre du nom de fichier
+    if (contract.fileName) {
+      // Supprimer l'extension et nettoyer le nom
+      const cleanFileName = contract.fileName
+        .replace(/\.[^/.]+$/, "") // Supprimer l'extension
+        .replace(/[-_]/g, " ") // Remplacer tirets et underscores par des espaces
+        .replace(/\b\w/g, l => l.toUpperCase()) // Capitaliser chaque mot
+      
+      if (cleanFileName.trim() !== '') {
+        return cleanFileName
+      }
+    }
+
+    // Essayer d'utiliser le type de contrat s'il existe
+    if (contract.contractType) {
+      return `Contrat ${contract.contractType}`
+    }
+
+    // Utiliser la date comme dernier recours
+    if (contract.uploadDate || contract.createdAt) {
+      const date = new Date(contract.uploadDate || contract.createdAt)
+      return `Contrat du ${date.toLocaleDateString('fr-FR')}`
+    }
+
+    // Fallback final
+    return `Contrat #${contract._id?.slice(-6) || contract.id?.slice(-6) || 'XXX'}`
+  }
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-64">
@@ -183,7 +218,9 @@ function DashboardPage() {
                 {contracts.slice(0, 5).map((contract) => (
                   <tr key={contract._id || contract.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{contract.title || 'Untitled'}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {generateSmartTitle(contract)}
+                      </div>
                       <div className="text-sm text-gray-500">{contract.fileName || 'No filename'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

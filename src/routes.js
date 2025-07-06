@@ -15,7 +15,10 @@ import SettingsPage from "./pages/SettingsPage"
 import NotFoundPage from "./pages/NotFoundPage"
 import AuthCallback from "./pages/AuthCallback"
 import Success from "./pages/Success"
-import ContractPreview from "./components/ContractPreview"
+import ContractsPage from "./pages/ContractsPage"
+import ProfilPage from "./pages/ProfilPage"
+import SecuritySettings from "./components/SecuritySettings"
+import LandingPage from "./pages/LandingPage"
 
 // Auth guard component
 const AuthGuard = ({ children }) => {
@@ -25,6 +28,10 @@ const AuthGuard = ({ children }) => {
 
 export const routes = [
   // Public routes
+  {
+    path: "/",
+    element: <LandingPage />,
+  },
   {
     path: "/login",
     element: <LoginPage />,
@@ -55,8 +62,8 @@ export const routes = [
       { path: "dashboard", element: <DashboardPage /> },
       { path: "upload", element: <UploadPage /> },
       { path: "contracts/:id", element: <ContractDetailPage /> },
-      // { path: "contracts", element: <ContractPreview /> },
-      { path: "settings", element: <SettingsPage /> },
+      { path: "contracts", element: <ContractsPage /> },
+      { path: "settings", element: <ProfilPage /> },
     ],
   },
 

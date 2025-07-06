@@ -9,7 +9,7 @@ import Stepper from "../components/Stepper"
 import ContractPreview from "../components/ContractPreview"
 import { detectSensitiveData } from "../utils/textProcessing"
 import mammoth from "mammoth"
-import { analyzeContract } from "../services/contractService"
+import { analyzeContract, saveContract } from "../services/contractService"
 
 function UploadPage() {
   const [currentStep, setCurrentStep] = useState(0)
@@ -23,6 +23,7 @@ function UploadPage() {
   const [error, setError] = useState(null)
   const [isParsing, setIsParsing] = useState(false)
   const [parsingProgress, setParsingProgress] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // const { uploadContract, analyzeContract } = useContract()
   const navigate = useNavigate()
@@ -57,20 +58,20 @@ function UploadPage() {
         </svg>
       ),
     },
-    {
-      title: "Edit",
-      description: "Modify if needed",
-      icon: (
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-          />
-        </svg>
-      ),
-    },
+    // {
+    //   title: "Edit",
+    //   description: "Modify if needed",
+    //   icon: (
+    //     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    //       <path
+    //         strokeLinecap="round"
+    //         strokeLinejoin="round"
+    //         strokeWidth={2}
+    //         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+    //       />
+    //     </svg>
+    //   ),
+    // },
     {
       title: "Submit",
       description: "Send for analysis",
@@ -225,43 +226,61 @@ function UploadPage() {
     setContractData(updatedData)
   }, [])
 
-  const handleSubmitToAI = useCallback(() => {
-    setUploadStatus("uploading")
+  const handleSubmitToAI = useCallback(async () => {
+    // Protection contre les double-clics
+    if (isSubmitting) {
+      console.log("Soumission déjà en cours, ignorée");
+      return;
+    }
 
-    // Simulate upload progress
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          setUploadStatus("analyzing")
+    setIsSubmitting(true);
+    setUploadStatus("uploading");
 
-          // Simulate analysis
-          setTimeout(async () => {
-            setUploadStatus("success")
+    try {
+      const interval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            setUploadStatus("analyzing");
 
-            // // In a real app, you would get the ID from the API response
-            // const analysisId = "analysis-" + Date.now()
+            setTimeout(async () => {
+              try {
+                const resContract = await saveContract({
+                  text: contractData.content,
+                  title: contractData.title,
+                });
 
-            console.log('testssss po : ', contractData);
+                console.log("Contract saved:", resContract);
 
-            // Simulate API call
-            const resContract = await analyzeContract(contractData.content)
+                if (resContract.success && resContract.data) {
+                  setUploadStatus("success");
+                  setTimeout(() => {
+                    navigate(`/contracts/${resContract.data._id}`);
+                  }, 1500);
+                } else {
+                  throw new Error("Failed to save contract");
+                }
+              } catch (error) {
+                console.error("Error saving contract:", error);
+                setUploadStatus("error");
+                setError(error.message);
+              } finally {
+                setIsSubmitting(false); // ✅ Réinitialiser le flag
+              }
+            }, 1000);
 
-            console.log('testststststsztstts lol : ', resContract)
-
-            // Redirect to analysis page after a delay
-            setTimeout(() => {
-              navigate(`/contracts/${resContract.contract._id}`)
-              // navigate(`/contracts/${resContract.data.contractAnalyzedByIA._id}`)
-            }, 1500)
-          }, 3000)
-
-          return 100
-        }
-        return prev + 5
-      })
-    }, 200)
-  }, [contractData, analyzeContract, navigate])
+            return 100;
+          }
+          return prev + 10;
+        });
+      }, 100);
+    } catch (error) {
+      console.error("Error in handleSubmitToAI:", error);
+      setUploadStatus("error");
+      setError(error.message);
+      setIsSubmitting(false);
+    }
+  }, [contractData, navigate, isSubmitting]);
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -269,9 +288,8 @@ function UploadPage() {
         return (
           <div>
             <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center ${
-                dragActive ? "border-gray-900 bg-gray-50" : "border-gray-200"
-              }`}
+              className={`border-2 border-dashed rounded-lg p-8 text-center ${dragActive ? "border-gray-900 bg-gray-50" : "border-gray-200"
+                }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
@@ -365,7 +383,7 @@ function UploadPage() {
 
 
                   </div>
-                  
+
                 )}
               </div>
             )}
@@ -375,10 +393,10 @@ function UploadPage() {
       case 1: // Review
         return <ContractPreview contractData={contractData} onEdit={handleContentEdit} onSubmit={handleContinue} />
 
-      case 2: // Edit
-        return <div>Edit functionality will be implemented here</div>
+      // case 2: // Edit
+      //   return <div>Edit functionality will be implemented here</div>
 
-      case 3: // Submit
+      case 2: // Submit
         return (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold">Submit for AI Analysis</h2>
@@ -426,9 +444,8 @@ function UploadPage() {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Sensitive Data</span>
                   <span
-                    className={`font-medium ${
-                      contractData?.sensitiveItems?.length > 0 ? "text-amber-600" : "text-green-600"
-                    }`}
+                    className={`font-medium ${contractData?.sensitiveItems?.length > 0 ? "text-amber-600" : "text-green-600"
+                      }`}
                   >
                     {contractData?.sensitiveItems?.length || 0} items{" "}
                     {contractData?.sensitiveItems?.length > 0 ? "manually reviewed" : "detected"}
@@ -512,8 +529,8 @@ function UploadPage() {
               <Button
                 variant="primary"
                 onClick={handleSubmitToAI}
-                disabled={uploadStatus !== "idle"}
-                isLoading={uploadStatus !== "idle"}
+                disabled={uploadStatus !== "idle" || isSubmitting} // ✅ Double protection
+                isLoading={uploadStatus !== "idle" || isSubmitting}
                 loadingText={
                   uploadStatus === "uploading"
                     ? "Uploading..."

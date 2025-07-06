@@ -1,5 +1,5 @@
 /**
- * Utility functions for text processing in the contract analysis application
+ * Utility functions for text processing in the contract analysis application - FIXED VERSION
  */
 
 /**
@@ -12,152 +12,375 @@ export function detectSensitiveData(text) {
   
   const sensitiveItems = [];
   
-  // Regular expressions for different types of sensitive data
+  // Regular expressions for different types of sensitive data - IMPROVED
   const patterns = {
+    // Emails - plus précis
     "Email": /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
-    "Phone Number": /\b(?:\+\d{1,3}[- ]?)?\(?\d{3}\)?[- ]?\d{3}[- ]?\d{4}\b/g,
-    "Social Security Number": /\b\d{1,3}[ -]?\d{2}[ -]?\d{2}[ -]?\d{3}[ -]?\d{3}\b/g,
-    "Address": /\b\d+\s+[A-Za-z]+\s+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Court|Ct|Lane|Ln|Way|Terrace|Ter|Place|Pl|Square|Sq)[.,]?\s+(?:[A-Za-z]+[.,]?\s+)*(?:\d{5}(?:-\d{4})?)?/gi,
-    "Credit Card": /\b(?:\d{4}[- ]?){3}\d{4}\b/g,
-    "Date of Birth": /\b(?:Born on|Date of Birth|DOB|Né[e]? le)[\s:]+\d{1,2}[-\/. ]\d{1,2}[-\/. ]\d{2,4}\b/gi,
-    "Bank Account": /\b[A-Z]{2}\d{2}[ ]\d{4}[ ]\d{4}[ ]\d{4}[ ]\d{4}[ ]\d{4}\b/g,
-    "National ID": /\b\d{1}[ ]?\d{2}[ ]?\d{2}[ ]?\d{2}[ ]?\d{3}[ ]?\d{3}[ ]?\d{2}\b/g,
-    "Name with Title": /\b(?:M\.|Mr\.|Mrs\.|Ms\.|Dr\.|Prof\.)(?:[ ]?[A-Z][a-zÀ-ö]+){1,2}\b/g,
+    
+    // Phone numbers - format français amélioré
+    "Phone Number": /(?:\+33|0)[1-9](?:[.\s-]?\d{2}){4}|\b\d{2}\s\d{2}\s\d{2}\s\d{2}\s\d{2}\b/g,
+    
+    // French Social Security Numbers (INSEE) - plus strict
+    "Social Security Number": /\b[12]\d{12}\d{2}\b/g,
+    
+    // Credit card numbers - plus strict
+    "Credit Card": /\b(?:\d{4}[.\s-]?){3}\d{4}\b/g,
+    
+    // IBAN français - format exact
+    "Bank Account": /\bFR\d{2}\s?(?:\d{4}\s?){5}\d{2}\b/g,
+    
+    // Adresses françaises - plus précis
+    "Address": /\b\d{1,4}(?:\s+(?:bis|ter|quater|[A-C]))?\s+(?:rue|avenue|boulevard|place|impasse|allée|chemin|square|passage|villa|cours|quai|pont|route|voie)\s+[A-Za-zÀ-ÿ\s'-]+(?:,\s*\d{5}(?:\s+[A-Za-zÀ-ÿ\s-]+)?)?/gi,
+    
+    // Noms avec titre - plus strict
+    "Name with Title": /\b(?:M\.|Mr\.|Mme|Mlle|Mrs\.|Ms\.|Dr\.|Prof\.|Maître)\s+[A-ZÀ-Ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-Ÿ][a-zà-ÿ]+)?/g,
+    
+    // SIRET/SIREN - format exact
+    "Company Registration": /\b(?:SIRET|SIREN)[\s:]*(\d{9}|\d{14})\b/gi,
+    
+    // Code postal français seul
+    "Postal Code": /\b\d{5}\b/g,
+    
+    // Dates de naissance - plus précis
+    "Date of Birth": /\b(?:né[e]?\s+le|date\s+de\s+naissance|ddn|born\s+on)[\s:]+\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}\b/gi,
+    
+    // Salaires - plus précis
+    "Salary": /\b(?:salaire|rémunération|traitement)[\s:]*\d{1,3}(?:\s?\d{3})*(?:[.,]\d{2})?\s*(?:euros?|€|EUR)\b/gi,
+    
+    // Numéros de passeport/CNI français
+    "National ID": /\b(?:passeport|CNI|carte\s+d'identité)[\s:]*[A-Z0-9]{8,12}\b/gi,
+    
+    // Plaques d'immatriculation françaises
+    "License Plate": /\b[A-Z]{2}-\d{3}-[A-Z]{2}\b/g,
   };
   
   // Find matches for each pattern
   Object.entries(patterns).forEach(([type, pattern]) => {
+    // Reset regex lastIndex to avoid issues with global flags
+    pattern.lastIndex = 0;
+    
     let match;
     while ((match = pattern.exec(text)) !== null) {
+      // Éviter les boucles infinies
+      if (match[0].length === 0) {
+        pattern.lastIndex++;
+        continue;
+      }
+      
       sensitiveItems.push({
         type,
         index: match.index,
         length: match[0].length,
-        value: match[0]
+        value: match[0].trim(),
+        context: getContext(text, match.index, match[0].length)
       });
     }
   });
   
+  // Remove duplicates and overlapping matches
+  const uniqueItems = removeDuplicateMatches(sensitiveItems);
+  
   // Sort by position in the text
-  return sensitiveItems.sort((a, b) => a.index - b.index);
+  return uniqueItems.sort((a, b) => a.index - b.index);
 }
 
 /**
- * Masks sensitive data in contract text
- * @param {string} text - The contract text
- * @param {Array} sensitiveItems - Array of sensitive data items
- * @returns {string} - Text with sensitive data masked
+ * Get context around a match for better understanding
+ * @param {string} text - Full text
+ * @param {number} index - Match index
+ * @param {number} length - Match length
+ * @returns {string} - Context string
  */
-export function maskSensitiveData(text, sensitiveItems) {
+function getContext(text, index, length) {
+  const start = Math.max(0, index - 30);
+  const end = Math.min(text.length, index + length + 30);
+  return text.substring(start, end).replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Remove duplicate and overlapping matches
+ * @param {Array} items - Array of sensitive data items
+ * @returns {Array} - Filtered array without duplicates
+ */
+function removeDuplicateMatches(items) {
+  if (!items || items.length === 0) return [];
+  
+  // Sort by index first
+  const sorted = [...items].sort((a, b) => a.index - b.index);
+  const unique = [];
+  
+  for (let i = 0; i < sorted.length; i++) {
+    const current = sorted[i];
+    let isOverlapping = false;
+    
+    // Check if current item overlaps with any item in unique array
+    for (let j = 0; j < unique.length; j++) {
+      const existing = unique[j];
+      
+      // Check for overlap
+      if (current.index < existing.index + existing.length && 
+          current.index + current.length > existing.index) {
+        
+        // If overlapping, keep the longer match or the more specific type
+        if (current.length > existing.length || 
+            getPriorityScore(current.type) > getPriorityScore(existing.type)) {
+          unique.splice(j, 1); // Remove existing
+          break;
+        } else {
+          isOverlapping = true;
+          break;
+        }
+      }
+    }
+    
+    if (!isOverlapping) {
+      unique.push(current);
+    }
+  }
+  
+  return unique;
+}
+
+/**
+ * Get priority score for different types of sensitive data
+ * @param {string} type - Type of sensitive data
+ * @returns {number} - Priority score (higher = more important)
+ */
+function getPriorityScore(type) {
+  const priorities = {
+    'Social Security Number': 10,
+    'Credit Card': 9,
+    'Bank Account': 8,
+    'National ID': 7,
+    'Email': 6,
+    'Phone Number': 5,
+    'Name with Title': 4,
+    'Address': 3,
+    'Company Registration': 2,
+    'Salary': 2,
+    'Date of Birth': 1,
+    'License Plate': 1,
+    'Postal Code': 0
+  };
+  
+  return priorities[type] || 0;
+}
+
+/**
+ * Anonymize sensitive data in text
+ * @param {string} text - Original text
+ * @param {Array} sensitiveItems - Array of sensitive data items from detectSensitiveData
+ * @param {string} placeholder - Placeholder text (default: '[REDACTED]')
+ * @returns {string} - Anonymized text
+ */
+export function anonymizeText(text, sensitiveItems, placeholder = '[REDACTED]') {
   if (!text || !sensitiveItems || sensitiveItems.length === 0) return text;
   
-  // Sort items by index in descending order to avoid offset issues when replacing
+  // Sort by index in descending order to avoid index shifting issues
   const sortedItems = [...sensitiveItems].sort((a, b) => b.index - a.index);
   
-  let maskedText = text;
+  let anonymizedText = text;
   
-  sortedItems.forEach((item) => {
-    const mask = "X".repeat(item.length);
-    maskedText = maskedText.substring(0, item.index) + mask + maskedText.substring(item.index + item.length);
+  sortedItems.forEach(item => {
+    const before = anonymizedText.substring(0, item.index);
+    const after = anonymizedText.substring(item.index + item.length);
+    anonymizedText = before + placeholder + after;
   });
   
-  return maskedText;
+  return anonymizedText;
 }
 
 /**
- * Extracts key information from contract text
- * @param {string} text - The contract text
- * @returns {Object} - Object with extracted key information
+ * Generate a summary report of sensitive data found
+ * @param {Array} sensitiveItems - Array of sensitive data items
+ * @returns {Object} - Summary report
  */
-export function extractContractInfo(text) {
-  if (!text) return {};
-  
-  const info = {};
-  
-  // Extract contract type
-  const contractTypeMatch = text.match(/\b(?:CONTRAT|CONTRACT)\s+DE\s+([^\n]+)/i);
-  if (contractTypeMatch) {
-    info.contractType = contractTypeMatch[1].trim();
+export function generateSensitiveDataReport(sensitiveItems) {
+  if (!sensitiveItems || sensitiveItems.length === 0) {
+    return {
+      total: 0,
+      byType: {},
+      riskLevel: 'LOW',
+      recommendations: ['No sensitive data detected in the contract.']
+    };
   }
   
-  // Extract parties
-  const partiesSection = text.match(/Entre les soussignés\s?:([^]*?)(?:Article|$)/i);
-  if (partiesSection) {
-    const partiesText = partiesSection[1];
-    
-    // Extract company
-    const companyMatch = partiesText.match(/Société\s?:\s?([^\n]+)/i);
-    if (companyMatch) {
-      info.company = companyMatch[1].trim();
-    }
-    
-    // Extract employee
-    const employeeMatch = partiesText.match(/Salarié\(e\)\s?:\s?([^\n]+)/i);
-    if (employeeMatch) {
-      info.employee = employeeMatch[1].trim();
-    }
-  }
+  const byType = {};
+  sensitiveItems.forEach(item => {
+    byType[item.type] = (byType[item.type] || 0) + 1;
+  });
   
-  // Extract start date
-  const startDateMatch = text.match(/(?:à compter du|start date|beginning on|commencing on)\s+(\d{1,2}[\s./-]\w+[\s./-]\d{2,4}|\w+\s+\d{1,2},?\s+\d{2,4})/i);
-  if (startDateMatch) {
-    info.startDate = startDateMatch[1].trim();
-  }
+  const riskLevel = calculateRiskLevel(sensitiveItems);
+  const recommendations = generateRecommendations(byType, riskLevel);
   
-  // Extract salary
-  const salaryMatch = text.match(/(?:rémunération|salary|compensation).{1,50}(\d[\d\s.,]*\d)(?:\s+\w+)?(?:\s+\w+)?/i);
-  if (salaryMatch) {
-    info.salary = salaryMatch[1].trim();
-  }
-  
-  return info;
+  return {
+    total: sensitiveItems.length,
+    byType,
+    riskLevel,
+    recommendations,
+    items: sensitiveItems
+  };
 }
 
 /**
- * Analyzes contract for risk areas
- * @param {string} text - The contract text
- * @returns {Array} - Array of potential risk areas with type, description, and severity
+ * Calculate risk level based on sensitive data types found
+ * @param {Array} sensitiveItems - Array of sensitive data items
+ * @returns {string} - Risk level: LOW, MEDIUM, HIGH, CRITICAL
  */
-export function analyzeContractRisks(text) {
-  if (!text) return [];
+function calculateRiskLevel(sensitiveItems) {
+  const highRiskTypes = ['Social Security Number', 'Credit Card', 'Bank Account'];
+  const mediumRiskTypes = ['National ID', 'Email', 'Phone Number', 'Salary'];
   
-  const risks = [];
+  const hasHighRisk = sensitiveItems.some(item => highRiskTypes.includes(item.type));
+  const hasMediumRisk = sensitiveItems.some(item => mediumRiskTypes.includes(item.type));
   
-  // Check for non-compete clause
-  if (/non[\s-]concurrence|non[\s-]compete/i.test(text)) {
-    risks.push({
-      type: "Non-Compete Clause",
-      description: "Contract contains a non-compete clause that may restrict future employment",
-      severity: "Medium"
-    });
+  if (hasHighRisk) return 'CRITICAL';
+  if (hasMediumRisk) return 'HIGH';
+  if (sensitiveItems.length > 5) return 'MEDIUM';
+  return 'LOW';
+}
+
+/**
+ * Generate recommendations based on detected sensitive data
+ * @param {Object} byType - Count of sensitive data by type
+ * @param {string} riskLevel - Risk level
+ * @returns {Array} - Array of recommendation strings
+ */
+function generateRecommendations(byType, riskLevel) {
+  const recommendations = [];
+  
+  if (riskLevel === 'CRITICAL') {
+    recommendations.push('⚠️ CRITICAL: This contract contains highly sensitive financial or identity information.');
+    recommendations.push('• Implement strict access controls and encryption');
+    recommendations.push('• Consider anonymizing the contract for general distribution');
+    recommendations.push('• Ensure compliance with GDPR and data protection regulations');
   }
   
-  // Check for probation period
-  if (/période d['']essai|probation period|trial period/i.test(text)) {
-    risks.push({
-      type: "Probation Period",
-      description: "Contract includes a probation period that may allow termination without notice",
-      severity: "Low"
-    });
+  if (byType['Social Security Number']) {
+    recommendations.push('• Social Security Numbers detected - ensure GDPR compliance');
   }
   
-  // Check for termination conditions
-  if (/termination|dismissal|licenciement|résiliation|rupture/i.test(text)) {
-    risks.push({
-      type: "Termination Conditions",
-      description: "Contract specifies conditions for termination that should be reviewed",
-      severity: "Medium"
-    });
+  if (byType['Credit Card'] || byType['Bank Account']) {
+    recommendations.push('• Financial information detected - implement PCI DSS compliance measures');
   }
   
-  // Check for intellectual property clauses
-  if (/intellectual property|propriété intellectuelle|copyright|copyright|patent|brevet/i.test(text)) {
-    risks.push({
-      type: "Intellectual Property",
-      description: "Contract contains intellectual property clauses that may affect ownership of your work",
-      severity: "High"
-    });
+  if (byType['Email'] || byType['Phone Number']) {
+    recommendations.push('• Contact information detected - verify consent for data processing');
   }
   
-  return risks;
+  if (byType['Address']) {
+    recommendations.push('• Address information detected - consider if location data is necessary');
+  }
+  
+  if (Object.keys(byType).length > 0) {
+    recommendations.push('• Review data retention policies');
+    recommendations.push('• Consider implementing data minimization principles');
+  }
+  
+  return recommendations;
+}
+
+/**
+ * Validate French-specific data formats
+ * @param {string} value - Value to validate
+ * @param {string} type - Type of data to validate
+ * @returns {boolean} - Whether the value is valid
+ */
+export function validateFrenchFormat(value, type) {
+  const validators = {
+    'Social Security Number': (val) => {
+      // French INSEE number validation
+      const cleaned = val.replace(/\s/g, '');
+      if (cleaned.length !== 15) return false;
+      
+      const key = cleaned.substring(13, 15);
+      const number = cleaned.substring(0, 13);
+      const calculatedKey = 97 - (parseInt(number) % 97);
+      
+      return parseInt(key) === calculatedKey;
+    },
+    
+    'IBAN': (val) => {
+      // French IBAN validation
+      const cleaned = val.replace(/\s/g, '');
+      if (!cleaned.startsWith('FR') || cleaned.length !== 27) return false;
+      
+      // Basic IBAN checksum validation
+      const rearranged = cleaned.substring(4) + cleaned.substring(0, 4);
+      const numericString = rearranged.replace(/[A-Z]/g, (char) => 
+        (char.charCodeAt(0) - 65 + 10).toString()
+      );
+      
+      return mod97(numericString) === 1;
+    },
+    
+    'SIRET': (val) => {
+      const cleaned = val.replace(/\s/g, '');
+      return cleaned.length === 14 && /^\d{14}$/.test(cleaned);
+    },
+    
+    'SIREN': (val) => {
+      const cleaned = val.replace(/\s/g, '');
+      return cleaned.length === 9 && /^\d{9}$/.test(cleaned);
+    }
+  };
+  
+  return validators[type] ? validators[type](value) : true;
+}
+
+/**
+ * Helper function for IBAN validation
+ * @param {string} str - Numeric string
+ * @returns {number} - Modulo 97 result
+ */
+function mod97(str) {
+  let remainder = 0;
+  for (let i = 0; i < str.length; i++) {
+    remainder = (remainder * 10 + parseInt(str[i])) % 97;
+  }
+  return remainder;
+}
+
+/**
+ * Extract and structure contract metadata
+ * @param {string} text - Contract text
+ * @returns {Object} - Structured contract metadata
+ */
+export function extractContractMetadata(text) {
+  const metadata = {
+    parties: [],
+    dates: [],
+    amounts: [],
+    terms: [],
+    locations: []
+  };
+  
+  // Extract contract parties
+  const partyPatterns = [
+    /entre\s+([A-ZÀ-Ÿ][a-zà-ÿ\s]+),?\s+(?:ci-après|désigné)/gi,
+    /(?:la\s+société|l'entreprise|le\s+client)\s+([A-ZÀ-Ÿ][a-zà-ÿ\s]+)/gi
+  ];
+  
+  partyPatterns.forEach(pattern => {
+    let match;
+    while ((match = pattern.exec(text)) !== null) {
+      metadata.parties.push(match[1].trim());
+    }
+  });
+  
+  // Extract important dates
+  const datePattern = /\b\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}\b/g;
+  let dateMatch;
+  while ((dateMatch = datePattern.exec(text)) !== null) {
+    metadata.dates.push(dateMatch[0]);
+  }
+  
+  // Extract monetary amounts
+  const amountPattern = /\b\d{1,3}(?:\s?\d{3})*(?:[.,]\d{2})?\s*(?:euros?|€|EUR)\b/gi;
+  let amountMatch;
+  while ((amountMatch = amountPattern.exec(text)) !== null) {
+    metadata.amounts.push(amountMatch[0]);
+  }
+  
+  return metadata;
 }
