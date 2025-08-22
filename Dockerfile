@@ -6,7 +6,7 @@ COPY package*.json ./
 
 RUN ls -la /app
 
-RUN npm ci --verbose
+RUN npm i
 
 COPY . .
 
