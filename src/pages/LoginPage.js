@@ -16,7 +16,6 @@ function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Get the redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || "/dashboard"
 
   const handleSubmit = async (e) => {

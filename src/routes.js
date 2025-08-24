@@ -2,10 +2,8 @@
 import { Navigate } from "react-router-dom"
 import { useAuth } from "./helpers/useAuth"
 
-// Layouts
 import MainLayout from "./components/MainLayout"
 
-// Pages
 import LoginPage from "./pages/LoginPage"
 import RegisterPage from "./pages/RegisterPage"
 import DashboardPage from "./pages/DashboardPage"
@@ -20,14 +18,12 @@ import ProfilPage from "./pages/ProfilPage"
 import SecuritySettings from "./components/SecuritySettings"
 import LandingPage from "./pages/LandingPage"
 
-// Auth guard component
 const AuthGuard = ({ children }) => {
   const { isAuthenticated } = useAuth()
   return isAuthenticated ? children : <Navigate to="/login" replace />
 }
 
 export const routes = [
-  // Public routes
   {
     path: "/",
     element: <LandingPage />,

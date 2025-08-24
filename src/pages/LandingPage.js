@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { 
-  FiZap, 
-  FiTarget, 
-  FiFileText, 
-  FiLock, 
+import {
+  FiZap,
+  FiTarget,
+  FiFileText,
+  FiLock,
   FiHelpCircle,
   FiLayout,
   FiDollarSign,
@@ -22,26 +22,25 @@ import { FaBalanceScale } from 'react-icons/fa';
 const LandingPage = () => {
 
   const linkStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.25rem',
-  textDecoration: 'none',
-  color: '#4b5563',
-  fontWeight: 500,
-  transition: 'color 0.2s ease'
-};
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+    textDecoration: 'none',
+    color: '#4b5563',
+    fontWeight: 500,
+    transition: 'color 0.2s ease'
+  };
 
-const buttonStyle = {
-  background: '#111827',
-  color: 'white',
-  padding: '0.5rem 1rem',
-  borderRadius: '0.5rem',
-  fontWeight: 500,
-  textDecoration: 'none',
-  transition: 'all 0.2s ease',
-};
+  const buttonStyle = {
+    background: '#111827',
+    color: 'white',
+    padding: '0.5rem 1rem',
+    borderRadius: '0.5rem',
+    fontWeight: 500,
+    textDecoration: 'none',
+    transition: 'all 0.2s ease',
+  };
   useEffect(() => {
-    // Smooth scroll pour les liens de navigation
     const handleAnchorClick = (e) => {
       const href = e.target.getAttribute('href');
       if (href && href.startsWith('#')) {
@@ -56,7 +55,6 @@ const buttonStyle = {
       }
     };
 
-    // Animation au scroll
     const observerOptions = {
       threshold: 0.1,
       rootMargin: '0px 0px -50px 0px'
@@ -624,7 +622,7 @@ const buttonStyle = {
 
       `}</style>
 
-<header style={{
+      <header style={{
         backgroundColor: 'white',
         borderBottom: '1px solid #e5e7eb',
         position: 'sticky',
@@ -644,31 +642,30 @@ const buttonStyle = {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 
-<div className="themis-icon">
-  <FaBalanceScale size={24} color="white" />
-</div>
+            <div className="themis-icon">
+              <FaBalanceScale size={24} color="white" />
+            </div>
 
 
 
             <div>
-              <div className="brand-name" style={{ 
-                fontSize: '1.5rem', 
+              <div className="brand-name" style={{
+                fontSize: '1.5rem',
                 color: '#111827',
               }}>ContractAI</div>
-              <div className="brand-subtitle" style={{ 
-                fontSize: '0.75rem', 
+              <div className="brand-subtitle" style={{
+                fontSize: '0.75rem',
                 color: '#6b7280',
               }}>L'IA au service du droit</div>
             </div>
           </div>
 
-          {/* Navigation - Typographie moderne */}
           <nav style={{ display: 'flex', gap: '2rem' }}>
-            <a href="#" style={{ 
-              textDecoration: 'none', 
-              color: '#4b5563', 
-              fontWeight: 500, 
-              display: 'flex', 
+            <a href="#" style={{
+              textDecoration: 'none',
+              color: '#4b5563',
+              fontWeight: 500,
+              display: 'flex',
               alignItems: 'center',
               fontFamily: "'Inter', sans-serif",
               fontSize: '1rem',
@@ -676,7 +673,6 @@ const buttonStyle = {
               <FiFileText style={{ marginRight: '8px', fontSize: '18px' }} />
               Fonctionnalités
             </a>
-            {/* ... autres liens de navigation ... */}
           </nav>
         </nav>
       </header>
@@ -687,15 +683,15 @@ const buttonStyle = {
         <div className="container">
           <h1>Analysez vos contrats<br />en 30 secondes</h1>
           <p className="hero-subtitle">
-            Notre IA examine vos documents juridiques et vous fournit une analyse claire et détaillée. 
+            Notre IA examine vos documents juridiques et vous fournit une analyse claire et détaillée.
             Gagnez du temps sur votre consultation professionnelle.
           </p>
-          
+
           <div className="hero-cta">
             <a href="/login" className="btn btn-primary">Commencer gratuitement</a>
             <a href="#" className="btn btn-secondary">Voir la démo</a>
           </div>
-          
+
           <div className="hero-stats">
             <div className="stat">
               <span className="stat-number">30s</span>
@@ -721,43 +717,43 @@ const buttonStyle = {
               Un outil de consultation rapide qui complète l'expertise professionnelle
             </p>
           </div>
-          
+
           <div className="features-grid">
             <div className="feature-card">
-  <div className="feature-icon feature-icon--speed"><FiZap size={20} /></div>
-  <h3>Analyse Ultra-Rapide</h3>
-  <p>Obtenez une première analyse complète de votre contrat en moins de 30 secondes, là où une consultation traditionnelle prendrait 1 heure.</p>
-</div>
+              <div className="feature-icon feature-icon--speed"><FiZap size={20} /></div>
+              <h3>Analyse Ultra-Rapide</h3>
+              <p>Obtenez une première analyse complète de votre contrat en moins de 30 secondes, là où une consultation traditionnelle prendrait 1 heure.</p>
+            </div>
 
-<div className="feature-card">
-  <div className="feature-icon feature-icon--focus"><FiTarget size={20} /></div>
-  <h3>Points Clés Identifiés</h3>
-  <p>Notre IA détecte automatiquement les clauses importantes, les risques potentiels et les points d'attention à retenir.</p>
-</div>
+            <div className="feature-card">
+              <div className="feature-icon feature-icon--focus"><FiTarget size={20} /></div>
+              <h3>Points Clés Identifiés</h3>
+              <p>Notre IA détecte automatiquement les clauses importantes, les risques potentiels et les points d'attention à retenir.</p>
+            </div>
 
-<div className="feature-card">
-  <div className="feature-icon feature-icon--report"><FiFileText size={20} /></div>
-  <h3>Rapport Détaillé</h3>
-  <p>Recevez un rapport structuré avec les éléments essentiels, parfait pour préparer votre consultation avec un professionnel.</p>
-</div>
+            <div className="feature-card">
+              <div className="feature-icon feature-icon--report"><FiFileText size={20} /></div>
+              <h3>Rapport Détaillé</h3>
+              <p>Recevez un rapport structuré avec les éléments essentiels, parfait pour préparer votre consultation avec un professionnel.</p>
+            </div>
 
-<div className="feature-card">
-  <div className="feature-icon feature-icon--secure"><FiLock size={20} /></div>
-  <h3>Sécurité Garantie</h3>
-  <p>Vos documents sont traités de manière sécurisée et confidentielle. Aucune donnée n'est conservée après analyse.</p>
-</div>
+            <div className="feature-card">
+              <div className="feature-icon feature-icon--secure"><FiLock size={20} /></div>
+              <h3>Sécurité Garantie</h3>
+              <p>Vos documents sont traités de manière sécurisée et confidentielle. Aucune donnée n'est conservée après analyse.</p>
+            </div>
 
-<div className="feature-card">
-  <div className="feature-icon feature-icon--lightbulb"><FaRegLightbulb size={20} /></div>
-  <h3>Consultation Préparatoire</h3>
-  <p>Optimisez votre temps avec votre avocat en arrivant avec une première analyse et les bonnes questions à poser.</p>
-</div>
+            <div className="feature-card">
+              <div className="feature-icon feature-icon--lightbulb"><FaRegLightbulb size={20} /></div>
+              <h3>Consultation Préparatoire</h3>
+              <p>Optimisez votre temps avec votre avocat en arrivant avec une première analyse et les bonnes questions à poser.</p>
+            </div>
 
-<div className="feature-card">
-  <div className="feature-icon feature-icon--layout"><FiLayout size={20} /></div>
-  <h3>Interface Intuitive</h3>
-  <p>Uploadez simplement votre contrat et recevez une analyse claire, même sans connaissances juridiques approfondies.</p>
-</div>
+            <div className="feature-card">
+              <div className="feature-icon feature-icon--layout"><FiLayout size={20} /></div>
+              <h3>Interface Intuitive</h3>
+              <p>Uploadez simplement votre contrat et recevez une analyse claire, même sans connaissances juridiques approfondies.</p>
+            </div>
 
           </div>
         </div>
@@ -771,7 +767,7 @@ const buttonStyle = {
               Commencez gratuitement ou optez pour un accès illimité
             </p>
           </div>
-          
+
           <div className="pricing-grid">
             <div className="pricing-card">
               <h3 className="plan-name">Gratuit</h3>
@@ -786,7 +782,7 @@ const buttonStyle = {
               </ul>
               <a href="#" className="btn btn-secondary btn-full">Commencer gratuitement</a>
             </div>
-            
+
             <div className="pricing-card featured">
               <h3 className="plan-name">Premium</h3>
               <div className="plan-price">19€</div>
@@ -803,11 +799,11 @@ const buttonStyle = {
               <a href="#" className="btn btn-primary btn-full">Passer à Premium</a>
             </div>
           </div>
-          
+
           <div className="disclaimer">
             <div className="disclaimer-title">Important : ContractAI est un outil de consultation préparatoire</div>
             <div className="disclaimer-text">
-              Nos analyses ne remplacent pas les conseils d'un professionnel du droit. 
+              Nos analyses ne remplacent pas les conseils d'un professionnel du droit.
               Elles vous permettent de gagner du temps et d'optimiser votre consultation avec votre avocat ou notaire.
             </div>
           </div>
@@ -821,13 +817,13 @@ const buttonStyle = {
               <h3>ContractAI</h3>
               <p>L'analyse de contrats par IA pour optimiser votre consultation juridique.</p>
             </div>
-            
+
             <div className="footer-section">
               <h3>Contact</h3>
               <a href="mailto:contact@contractai.fr"><FiMail style={{ marginRight: '8px' }} /> contact@contractai.fr</a>
               <a href="tel:+33123456789"><FiPhone style={{ marginRight: '8px' }} /> +33 1 23 45 67 89</a>
             </div>
-            
+
             <div className="footer-section">
               <h3>Légal</h3>
               <a href="#"><FiBook style={{ marginRight: '8px' }} /> Mentions légales</a>
@@ -835,7 +831,7 @@ const buttonStyle = {
               <a href="#"><FiFileText style={{ marginRight: '8px' }} /> CGU</a>
             </div>
           </div>
-          
+
           <div className="footer-bottom">
             <p>&copy; 2025 ContractAI. Tous droits réservés.</p>
           </div>

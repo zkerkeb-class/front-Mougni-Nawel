@@ -14,7 +14,7 @@ import { analyzeContract, saveContract } from "../services/contractService"
 function UploadPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [contractData, setContractData] = useState(null)
-  const [uploadStatus, setUploadStatus] = useState("idle") // idle, uploading, analyzing, success
+  const [uploadStatus, setUploadStatus] = useState("idle")
   const [uploadProgress, setUploadProgress] = useState(0)
   const [file, setFile] = useState(null)
   const [title, setTitle] = useState("")
@@ -25,7 +25,6 @@ function UploadPage() {
   const [parsingProgress, setParsingProgress] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // const { uploadContract, analyzeContract } = useContract()
   const navigate = useNavigate()
 
   const steps = [
@@ -58,20 +57,7 @@ function UploadPage() {
         </svg>
       ),
     },
-    // {
-    //   title: "Edit",
-    //   description: "Modify if needed",
-    //   icon: (
-    //     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    //       <path
-    //         strokeLinecap="round"
-    //         strokeLinejoin="round"
-    //         strokeWidth={2}
-    //         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-    //       />
-    //     </svg>
-    //   ),
-    // },
+
     {
       title: "Submit",
       description: "Send for analysis",
@@ -83,7 +69,6 @@ function UploadPage() {
     },
   ]
 
-  // Handle drag events
   const handleDrag = (e) => {
     e.preventDefault()
     e.stopPropagation()
@@ -94,7 +79,6 @@ function UploadPage() {
     }
   }
 
-  // Handle file drop
   const handleDrop = (e) => {
     e.preventDefault()
     e.stopPropagation()
@@ -106,7 +90,6 @@ function UploadPage() {
     }
   }
 
-  // Handle file input change
   const handleFileChange = (e) => {
     setError(null)
     if (e.target.files && e.target.files[0]) {
@@ -114,9 +97,7 @@ function UploadPage() {
     }
   }
 
-  // Process selected file
   const handleFileSelection = (selectedFile) => {
-    // Check file type
     const isPDF = selectedFile.type === "application/pdf" || selectedFile.name.endsWith(".pdf")
     const isDOCX =
       selectedFile.type === "application/msword" ||
@@ -130,7 +111,6 @@ function UploadPage() {
       return
     }
 
-    // Check file size (10MB max)
     if (selectedFile.size > 10 * 1024 * 1024) {
       setError("File is too large. Maximum size is 10MB.")
       return
@@ -139,12 +119,10 @@ function UploadPage() {
     setFile(selectedFile)
     setError(null)
 
-    // Auto-generate title from filename
     const fileName = selectedFile.name
     const titleFromName = fileName.split(".").slice(0, -1).join(".")
     setTitle(titleFromName)
 
-    // For text files, use FileReader directly
     if (isTXT) {
       const reader = new FileReader()
       reader.onload = (e) => {
@@ -157,11 +135,9 @@ function UploadPage() {
       return
     }
 
-    // For PDF and DOCX files, simulate text extraction with progress
     setIsParsing(true)
     setParsingProgress(0)
 
-    // Simulate parsing with progress updates
     const totalSteps = 10
     let currentStep = 0
 
@@ -204,7 +180,6 @@ function UploadPage() {
       const sensitiveItems = detectSensitiveData(content)
 
       const contractData = {
-        // _id,
         title,
         content,
         originalContent: content,
@@ -227,7 +202,6 @@ function UploadPage() {
   }, [])
 
   const handleSubmitToAI = useCallback(async () => {
-    // Protection contre les double-clics
     if (isSubmitting) {
       console.log("Soumission déjà en cours, ignorée");
       return;
@@ -250,7 +224,6 @@ function UploadPage() {
                   title: contractData.title,
                 });
 
-                console.log("Contract saved:", resContract);
 
                 if (resContract.success && resContract.data) {
                   setUploadStatus("success");
@@ -265,7 +238,7 @@ function UploadPage() {
                 setUploadStatus("error");
                 setError(error.message);
               } finally {
-                setIsSubmitting(false); // ✅ Réinitialiser le flag
+                setIsSubmitting(false);
               }
             }, 1000);
 
@@ -284,7 +257,7 @@ function UploadPage() {
 
   const renderStepContent = () => {
     switch (currentStep) {
-      case 0: // Upload
+      case 0:
         return (
           <div>
             <div
@@ -390,13 +363,10 @@ function UploadPage() {
           </div>
         )
 
-      case 1: // Review
+      case 1:
         return <ContractPreview contractData={contractData} onEdit={handleContentEdit} onSubmit={handleContinue} />
 
-      // case 2: // Edit
-      //   return <div>Edit functionality will be implemented here</div>
-
-      case 2: // Submit
+      case 2:
         return (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold">Submit for AI Analysis</h2>
@@ -529,7 +499,7 @@ function UploadPage() {
               <Button
                 variant="primary"
                 onClick={handleSubmitToAI}
-                disabled={uploadStatus !== "idle" || isSubmitting} // ✅ Double protection
+                disabled={uploadStatus !== "idle" || isSubmitting}
                 isLoading={uploadStatus !== "idle" || isSubmitting}
                 loadingText={
                   uploadStatus === "uploading"

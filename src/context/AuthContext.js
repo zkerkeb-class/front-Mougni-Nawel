@@ -22,7 +22,6 @@ export function AuthProvider({ children }) {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem("token")
-        console.log('test');
         if (!token) {
           setUser(null)
           setIsLoading(false)
@@ -41,12 +40,10 @@ export function AuthProvider({ children }) {
           setUser(data)
 
         } else {
-          // Token invalid or expired
           localStorage.removeItem("token")
           setUser(null)
         }
       } catch (error) {
-        console.error("Authentication error:", error)
         localStorage.removeItem("token")
         setUser(null)
       } finally {
@@ -78,8 +75,6 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     setIsLoading(true)
     try {
-      // In a real app, you would make an API call to your backend
-      // For now, we'll just simulate a successful login
       const response = await fetch(`${process.env.REACT_APP_API_AUTH}/auth/login`, {
         method: "POST",
         headers: {
@@ -106,7 +101,6 @@ export function AuthProvider({ children }) {
   const register = async (user) => {
     setIsLoading(true)
     try {
-      // In a real app, you would make an API call to your backend
       const response = await fetch(`${process.env.REACT_APP_API_AUTH}/auth/register`, {
         method: "POST",
         headers: {

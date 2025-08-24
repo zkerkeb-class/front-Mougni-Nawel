@@ -21,7 +21,6 @@ function SettingsPage() {
     setSuccessMessage("")
     setErrorMessage("")
 
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false)
       setSuccessMessage("Profile updated successfully")

@@ -57,7 +57,7 @@ function ContractDetailPage() {
 
   const parseResult = () => {
     try {
-      const analysisData = contract.data?.analyses?.[0]; // Accès via data.analyses
+      const analysisData = contract.data?.analyses?.[0];
       return analysisData?.result || {};
     } catch (e) {
       console.error("Error parsing result:", e);
@@ -65,15 +65,9 @@ function ContractDetailPage() {
     }
   };
 
-  const activeAnalysis = contract.data?.analyses?.[0]; // Même correction ici
+  const activeAnalysis = contract.data?.analyses?.[0];
   const result = parseResult();
 
-
-  console.log("Contract data:", {
-    contract,
-    activeAnalysis,
-    result
-  });
 
   return (
     <div className="px-4 md:px-0">
@@ -119,17 +113,14 @@ function ContractDetailPage() {
         </div>
 
         <div className="p-6">
-          {/* Overview */}
           {activeTab === "overview" && (
             <OverviewTab contract={contract.data} analysis={activeAnalysis} result={result} />
           )}
 
-          {/* Content */}
           {activeTab === "content" && (
             <ContentTab contract={contract} />
           )}
 
-          {/* AI Analysis */}
           {activeTab === "analysis" && (
             <AnalysisTab contract={contract.data} analysis={activeAnalysis} result={result} />
           )}
