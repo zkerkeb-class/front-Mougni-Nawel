@@ -1,4 +1,3 @@
-// src/pages/AuthCallback.jsx
 import { useContext, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -15,13 +14,10 @@ useEffect(() => {
       
       if (token) {
         try {
-          // Store the token
           localStorage.setItem('token', token);
           
-          // Verify the token and get user data
           await checkAuth();
           
-          // Redirect to dashboard
           navigate('/dashboard', { replace: true });
         } catch (error) {
           console.error('Google auth failed:', error);

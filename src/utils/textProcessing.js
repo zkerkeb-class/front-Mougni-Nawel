@@ -1,6 +1,4 @@
-/**
- * Utility functions for text processing in the contract analysis application - FIXED VERSION
- */
+
 
 /**
  * Detects sensitive data in contract text
@@ -12,56 +10,39 @@ export function detectSensitiveData(text) {
   
   const sensitiveItems = [];
   
-  // Regular expressions for different types of sensitive data - IMPROVED
   const patterns = {
-    // Emails - plus précis
     "Email": /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
     
-    // Phone numbers - format français amélioré
     "Phone Number": /(?:\+33|0)[1-9](?:[.\s-]?\d{2}){4}|\b\d{2}\s\d{2}\s\d{2}\s\d{2}\s\d{2}\b/g,
     
-    // French Social Security Numbers (INSEE) - plus strict
     "Social Security Number": /\b[12]\d{12}\d{2}\b/g,
     
-    // Credit card numbers - plus strict
     "Credit Card": /\b(?:\d{4}[.\s-]?){3}\d{4}\b/g,
     
-    // IBAN français - format exact
     "Bank Account": /\bFR\d{2}\s?(?:\d{4}\s?){5}\d{2}\b/g,
     
-    // Adresses françaises - plus précis
     "Address": /\b\d{1,4}(?:\s+(?:bis|ter|quater|[A-C]))?\s+(?:rue|avenue|boulevard|place|impasse|allée|chemin|square|passage|villa|cours|quai|pont|route|voie)\s+[A-Za-zÀ-ÿ\s'-]+(?:,\s*\d{5}(?:\s+[A-Za-zÀ-ÿ\s-]+)?)?/gi,
     
-    // Noms avec titre - plus strict
     "Name with Title": /\b(?:M\.|Mr\.|Mme|Mlle|Mrs\.|Ms\.|Dr\.|Prof\.|Maître)\s+[A-ZÀ-Ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-Ÿ][a-zà-ÿ]+)?/g,
     
-    // SIRET/SIREN - format exact
     "Company Registration": /\b(?:SIRET|SIREN)[\s:]*(\d{9}|\d{14})\b/gi,
     
-    // Code postal français seul
     "Postal Code": /\b\d{5}\b/g,
     
-    // Dates de naissance - plus précis
     "Date of Birth": /\b(?:né[e]?\s+le|date\s+de\s+naissance|ddn|born\s+on)[\s:]+\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}\b/gi,
     
-    // Salaires - plus précis
     "Salary": /\b(?:salaire|rémunération|traitement)[\s:]*\d{1,3}(?:\s?\d{3})*(?:[.,]\d{2})?\s*(?:euros?|€|EUR)\b/gi,
     
-    // Numéros de passeport/CNI français
     "National ID": /\b(?:passeport|CNI|carte\s+d'identité)[\s:]*[A-Z0-9]{8,12}\b/gi,
     
-    // Plaques d'immatriculation françaises
     "License Plate": /\b[A-Z]{2}-\d{3}-[A-Z]{2}\b/g,
   };
   
-  // Find matches for each pattern
   Object.entries(patterns).forEach(([type, pattern]) => {
-    // Reset regex lastIndex to avoid issues with global flags
     pattern.lastIndex = 0;
     
     let match;
     while ((match = pattern.exec(text)) !== null) {
-      // Éviter les boucles infinies
       if (match[0].length === 0) {
         pattern.lastIndex++;
         continue;
@@ -77,10 +58,8 @@ export function detectSensitiveData(text) {
     }
   });
   
-  // Remove duplicates and overlapping matches
   const uniqueItems = removeDuplicateMatches(sensitiveItems);
   
-  // Sort by position in the text
   return uniqueItems.sort((a, b) => a.index - b.index);
 }
 
@@ -105,7 +84,6 @@ function getContext(text, index, length) {
 function removeDuplicateMatches(items) {
   if (!items || items.length === 0) return [];
   
-  // Sort by index first
   const sorted = [...items].sort((a, b) => a.index - b.index);
   const unique = [];
   
@@ -113,18 +91,15 @@ function removeDuplicateMatches(items) {
     const current = sorted[i];
     let isOverlapping = false;
     
-    // Check if current item overlaps with any item in unique array
     for (let j = 0; j < unique.length; j++) {
       const existing = unique[j];
       
-      // Check for overlap
       if (current.index < existing.index + existing.length && 
           current.index + current.length > existing.index) {
         
-        // If overlapping, keep the longer match or the more specific type
         if (current.length > existing.length || 
             getPriorityScore(current.type) > getPriorityScore(existing.type)) {
-          unique.splice(j, 1); // Remove existing
+          unique.splice(j, 1);
           break;
         } else {
           isOverlapping = true;
@@ -176,7 +151,6 @@ function getPriorityScore(type) {
 export function anonymizeText(text, sensitiveItems, placeholder = '[REDACTED]') {
   if (!text || !sensitiveItems || sensitiveItems.length === 0) return text;
   
-  // Sort by index in descending order to avoid index shifting issues
   const sortedItems = [...sensitiveItems].sort((a, b) => b.index - a.index);
   
   let anonymizedText = text;
@@ -289,7 +263,6 @@ function generateRecommendations(byType, riskLevel) {
 export function validateFrenchFormat(value, type) {
   const validators = {
     'Social Security Number': (val) => {
-      // French INSEE number validation
       const cleaned = val.replace(/\s/g, '');
       if (cleaned.length !== 15) return false;
       
@@ -301,11 +274,9 @@ export function validateFrenchFormat(value, type) {
     },
     
     'IBAN': (val) => {
-      // French IBAN validation
       const cleaned = val.replace(/\s/g, '');
       if (!cleaned.startsWith('FR') || cleaned.length !== 27) return false;
       
-      // Basic IBAN checksum validation
       const rearranged = cleaned.substring(4) + cleaned.substring(0, 4);
       const numericString = rearranged.replace(/[A-Z]/g, (char) => 
         (char.charCodeAt(0) - 65 + 10).toString()
@@ -355,7 +326,6 @@ export function extractContractMetadata(text) {
     locations: []
   };
   
-  // Extract contract parties
   const partyPatterns = [
     /entre\s+([A-ZÀ-Ÿ][a-zà-ÿ\s]+),?\s+(?:ci-après|désigné)/gi,
     /(?:la\s+société|l'entreprise|le\s+client)\s+([A-ZÀ-Ÿ][a-zà-ÿ\s]+)/gi
@@ -368,14 +338,12 @@ export function extractContractMetadata(text) {
     }
   });
   
-  // Extract important dates
   const datePattern = /\b\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}\b/g;
   let dateMatch;
   while ((dateMatch = datePattern.exec(text)) !== null) {
     metadata.dates.push(dateMatch[0]);
   }
   
-  // Extract monetary amounts
   const amountPattern = /\b\d{1,3}(?:\s?\d{3})*(?:[.,]\d{2})?\s*(?:euros?|€|EUR)\b/gi;
   let amountMatch;
   while ((amountMatch = amountPattern.exec(text)) !== null) {

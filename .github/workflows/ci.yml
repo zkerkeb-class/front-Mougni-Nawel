@@ -2,12 +2,13 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "deploy" ]
   pull_request:
     branches: [ "main" ]
 
 jobs:
   build-and-test:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
@@ -32,6 +33,23 @@ jobs:
       - name: Install dependencies
         if: hashFiles('package.json') != ''
         run: npm install
+
+
+  deploy:
+    if: github.ref == 'refs/heads/deploy'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Créer .env.dev pour le deploy
+        run: |
+          touch .env
+          echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" >> .env
+          echo "REACT_APP_API_AI_URL=${{ secrets.REACT_APP_API_AI_URL }}" >> .env
+          echo "REACT_APP_API_AUTH=${{ secrets.REACT_APP_API_AUTH }}" >> .env
+          echo "REACT_APP_API_PAYMENT=${{ secrets.REACT_APP_API_PAYMENT }}" >> .env
+          echo "REACT_APP_STRIPE_PUBLIC_KEY=${{ secrets.REACT_APP_STRIPE_PUBLIC_KEY }}" >> .env
 
       - name: Set lowercase Docker user
         run: echo "DOCKER_USER=$(echo ${{ github.actor }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV

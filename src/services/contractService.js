@@ -2,7 +2,6 @@
  * Service for contract-related API calls
  */
 
-// Base API URLs - Correspondant aux microservices
 const BDD_API_URL = process.env.REACT_APP_API_URL;
 const IA_API_URL = process.env.REACT_APP_API_AI_URL;
 
@@ -18,7 +17,6 @@ export async function getContracts() {
       throw new Error("No authentication token found")
     }
 
-    // Utiliser le bon endpoint du microservice BDD
     const response = await fetch(`${BDD_API_URL}/contract/allContracts`, {
       method: "GET",
       headers: {
@@ -50,7 +48,6 @@ export async function getContract(id) {
       throw new Error("Contract ID is required")
     }
 
-    // Utiliser le bon endpoint du microservice BDD
     const response = await fetch(`${BDD_API_URL}/contract/${id}/info`, {
       method: "GET",
       headers: {
@@ -94,7 +91,6 @@ export async function saveContract(contractData) {
       title: contractData.title || `Contract ${new Date().toLocaleDateString()}`,
     };
 
-    console.log("Saving contract with payload:", payload);
 
     const response = await fetch(`${BDD_API_URL}/contract/save`, {
       method: "POST",
@@ -112,14 +108,7 @@ export async function saveContract(contractData) {
 
     const data = await response.json();
     
-    // ✅ Gérer les doublons côté frontend
     if (data.data && data.data.isDuplicate) {
-      console.log("Contrat dupliqué détecté:", data.data._id);
-      
-      // Vous pouvez choisir de :
-      // 1. Rediriger vers le contrat existant
-      // 2. Afficher un message à l'utilisateur
-      // 3. Demander confirmation pour continuer
       
       return {
         success: true,
@@ -129,7 +118,6 @@ export async function saveContract(contractData) {
       };
     }
 
-    console.log("Contract saved successfully:", data);
     return {
       success: true,
       data: data.data,
@@ -143,7 +131,6 @@ export async function saveContract(contractData) {
   }
 }
 
-// ✅ Fonction pour vérifier les doublons avant sauvegarde
 export async function checkForDuplicates(contractText) {
   try {
     const token = localStorage.getItem("token");
@@ -191,7 +178,6 @@ export async function triggerAnalysis(contractId) {
       throw new Error("Contract ID is required")
     }
 
-    console.log("Triggering manual analysis for contract:", contractId)
 
     const response = await fetch(`${BDD_API_URL}/contract/${contractId}/trigger-analysis`, {
       method: "POST",
@@ -207,7 +193,6 @@ export async function triggerAnalysis(contractId) {
     }
 
     const data = await response.json()
-    console.log("Analysis triggered successfully:", data)
     return data
   } catch (error) {
     console.error(`Error triggering analysis for contract ${contractId}:`, error)
@@ -229,29 +214,23 @@ export async function pollForAnalysis(contractId, maxAttempts = 30, interval = 2
     const poll = async () => {
       try {
         attempts++
-        console.log(`Polling attempt ${attempts}/${maxAttempts} for contract ${contractId}`)
 
         const contractData = await getContract(contractId)
 
         if (contractData.success && contractData.data) {
           const { status, analyses } = contractData.data
 
-          // Si l'analyse est terminée ou si on a des analyses
           if (status === "analyzed" || (analyses && analyses.length > 0)) {
-            console.log("Analysis completed:", contractData.data)
             resolve(contractData)
             return
           }
         }
 
-        // Si on a atteint le maximum de tentatives
         if (attempts >= maxAttempts) {
-          console.log("Max polling attempts reached")
-          resolve(contractData) // Retourner les données actuelles même si pas terminé
+          resolve(contractData)
           return
         }
 
-        // Continuer le polling
         setTimeout(poll, interval)
       } catch (error) {
         console.error("Error during polling:", error)
@@ -267,7 +246,7 @@ export async function pollForAnalysis(contractId, maxAttempts = 30, interval = 2
   })
 }
 
-// ⚠️ FONCTIONS LEGACY - REMPLACÉES PAR saveContract()
+
 
 /**
  * @deprecated Use saveContract instead

@@ -6,7 +6,6 @@ import { getContracts } from "../services/contractService"
 import { formatDistanceToNow } from "date-fns"
 import { fr } from "date-fns/locale"
 
-// Components
 import Button from "../components/Button"
 import Input from "../components/Input"
 import LoadingSpinner from "../components/LoadingSpinner"
@@ -21,7 +20,6 @@ function ContractsPage() {
   const [riskFilter, setRiskFilter] = useState("all")
   const navigate = useNavigate()
 
-  // Load contracts when component mounts
   useEffect(() => {
     const fetchContracts = async () => {
       try {
@@ -39,7 +37,6 @@ function ContractsPage() {
     fetchContracts()
   }, [])
 
-  // Filtrer les contrats en fonction des critères de recherche
   const filteredContracts = useMemo(() => {
     return contracts.filter(contract => {
       // Filtre par recherche texte
@@ -73,7 +70,6 @@ function ContractsPage() {
     })
   }, [contracts, searchTerm, statusFilter, riskFilter])
 
-  // Fonction pour générer un titre intelligent
   const generateSmartTitle = (contract) => {
     if (contract.title && contract.title.trim() !== '') {
       return contract.title
@@ -207,7 +203,6 @@ function ContractsPage() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredContracts.map((contract) => {
-                  // Déterminer le niveau de risque
                   let contractRiskLevel = "low"
                   if (contract.analyses && contract.analyses.length > 0) {
                     contractRiskLevel = contract.analyses[0].riskLevel || "low"

@@ -46,9 +46,7 @@ export function ContractProvider({ children }) {
       }
 
       const data = await response.json()
-      console.log('API Response:', data)
 
-      // Extract the contracts array from the response
       const contractsArray = data.data || data || []
       setContracts(contractsArray)
       
@@ -64,7 +62,6 @@ export function ContractProvider({ children }) {
     }
   }, [])
 
-  // Upload a new contract
   const uploadContract = useCallback(async (contractData) => {
     setIsLoading(true)
     setError(null)
@@ -105,7 +102,6 @@ export function ContractProvider({ children }) {
     }
   }, [])
 
-  // Analyze a contract
   const analyzeContract = useCallback(async (contractContent) => {
     setIsLoading(true)
     setError(null)
@@ -142,7 +138,6 @@ export function ContractProvider({ children }) {
     }
   }, [])
 
-  // Get a contract by ID
   const getContract = useCallback(
     (id) => {
       return contracts.find((contract) => contract._id === id || contract.id === id) || null
@@ -150,7 +145,6 @@ export function ContractProvider({ children }) {
     [contracts],
   )
 
-  // Get an analysis by ID
   const getAnalysis = useCallback(
     (id) => {
       return analyses[id] || null

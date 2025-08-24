@@ -5,7 +5,6 @@ import { useAuth } from "../helpers/useAuth"
 function Header({ toggleSidebar }) {
   const { user, logout, isLoading } = useAuth()
 
-  // Display loading state if auth is still checking
   if (isLoading) {
     return (
       <header className="bg-white border-b border-gray-200 z-30">
@@ -27,7 +26,6 @@ function Header({ toggleSidebar }) {
           </div>
           
           <div className="flex items-center">
-            {/* Notification icon */}
             <button className="p-2 text-gray-400 hover:text-gray-500 rounded-full">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -39,22 +37,18 @@ function Header({ toggleSidebar }) {
               </svg>
             </button>
 
-            {/* User profile section */}
             <div className="ml-3 relative">
               <div className="flex items-center">
-                {/* User avatar with fallback */}
                 <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
                   <span className="text-sm font-medium text-gray-600">
                     {user?.data?.firstname?.charAt(0) || user?.data?.email?.charAt(0) || "U"}
                   </span>
                 </div>
                 
-                {/* User name with fallback */}
                 <span className="ml-2 text-sm font-medium text-gray-700 hidden md:block">
                   {user?.data?.firstname || user?.data?.email || "User"}
                 </span>
                 
-                {/* Logout button */}
                 <button 
                   onClick={logout} 
                   className="ml-2 text-sm text-gray-500 hover:text-gray-700"

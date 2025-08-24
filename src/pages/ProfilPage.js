@@ -55,7 +55,6 @@ function ProfilePage() {
 
   const handleEditToggle = () => {
     if (isEditing) {
-      // Reset form when canceling
       setEditForm({
         firstname: user.firstname || "",
         lastname: user.lastname || "",
@@ -206,7 +205,6 @@ function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header avec gradient */}
         <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-2xl p-8 mb-8 text-white relative overflow-hidden">
           <div className="absolute inset-0 bg-black opacity-10"></div>
           <div className="relative z-10">
@@ -244,7 +242,6 @@ function ProfilePage() {
           </div>
         </div>
 
-        {/* Success Message */}
         {updateSuccess && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
             <div className="flex items-center">
@@ -261,7 +258,6 @@ function ProfilePage() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Navigation */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
               <nav className="space-y-2">
@@ -282,7 +278,6 @@ function ProfilePage() {
               </nav>
             </div>
 
-            {/* Stats Card */}
             {stats && (
               <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mt-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistiques</h3>
@@ -304,7 +299,6 @@ function ProfilePage() {
             )}
           </div>
 
-          {/* Main Content */}
           <div className="lg:col-span-3">
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
               {activeTab === "profile" && (
@@ -424,7 +418,6 @@ function ProfilePage() {
                       </div>
                     </div>
 
-                    {/* Usage Stats */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="bg-white border border-gray-200 rounded-lg p-6">
                         <div className="flex items-center justify-between mb-4">

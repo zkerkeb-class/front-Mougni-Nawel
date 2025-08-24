@@ -4,7 +4,6 @@ function SensitiveDataDetector({ contractData, onMaskAll, className }) {
   const { sensitiveItems = [] } = contractData || {}
   const [expanded, setExpanded] = useState(sensitiveItems.length > 0)
 
-  // No sensitive data detected
   if (!sensitiveItems || sensitiveItems.length === 0) {
     return (
       <div className={`p-4 bg-green-50 border border-green-200 rounded-lg ${className || ""}`}>
@@ -18,7 +17,6 @@ function SensitiveDataDetector({ contractData, onMaskAll, className }) {
     )
   }
 
-  // Group sensitive items by type
   const itemsByType = sensitiveItems.reduce((acc, item) => {
     if (!acc[item.type]) {
       acc[item.type] = []
