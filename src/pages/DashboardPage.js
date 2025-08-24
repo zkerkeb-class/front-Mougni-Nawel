@@ -6,43 +6,35 @@ import Button from "../components/Button"
 function DashboardPage() {
   const { getAllContracts, contracts, isLoading, error } = useContract()
 
-  // Load contracts when component mounts
   useEffect(() => {
     getAllContracts()
   }, [getAllContracts])
 
-  // Fonction pour générer un titre intelligent
   const generateSmartTitle = (contract) => {
-    // Si le contrat a déjà un titre, l'utiliser
     if (contract.title && contract.title.trim() !== '') {
       return contract.title
     }
 
-    // Essayer d'extraire un titre du nom de fichier
     if (contract.fileName) {
-      // Supprimer l'extension et nettoyer le nom
       const cleanFileName = contract.fileName
-        .replace(/\.[^/.]+$/, "") // Supprimer l'extension
-        .replace(/[-_]/g, " ") // Remplacer tirets et underscores par des espaces
-        .replace(/\b\w/g, l => l.toUpperCase()) // Capitaliser chaque mot
+        .replace(/\.[^/.]+$/, "")
+        .replace(/[-_]/g, " ")
+        .replace(/\b\w/g, l => l.toUpperCase())
       
       if (cleanFileName.trim() !== '') {
         return cleanFileName
       }
     }
 
-    // Essayer d'utiliser le type de contrat s'il existe
     if (contract.contractType) {
       return `Contrat ${contract.contractType}`
     }
 
-    // Utiliser la date comme dernier recours
     if (contract.uploadDate || contract.createdAt) {
       const date = new Date(contract.uploadDate || contract.createdAt)
       return `Contrat du ${date.toLocaleDateString('fr-FR')}`
     }
 
-    // Fallback final
     return `Contrat #${contract._id?.slice(-6) || contract.id?.slice(-6) || 'XXX'}`
   }
 

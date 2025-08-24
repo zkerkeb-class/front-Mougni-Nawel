@@ -88,7 +88,7 @@ export async function logActivity(type, details = {}) {
     const token = localStorage.getItem("token")
 
     if (!token) {
-      return // Don't throw error for logging
+      return
     }
 
     const response = await fetch(`${BDD_API_URL}/user/activity`, {
@@ -111,7 +111,6 @@ export async function logActivity(type, details = {}) {
     return data
   } catch (error) {
     console.error("Error logging activity:", error)
-    // Don't throw error for logging
   }
 }
 
@@ -227,7 +226,6 @@ export async function deleteUserAccount(password) {
       throw new Error(data.message || "Failed to delete account")
     }
 
-    // Clear localStorage after successful deletion
     localStorage.removeItem("token")
     localStorage.removeItem("user")
 

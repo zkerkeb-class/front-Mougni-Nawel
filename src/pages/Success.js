@@ -1,4 +1,3 @@
-// pages/Success.js
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../helpers/useAuth';

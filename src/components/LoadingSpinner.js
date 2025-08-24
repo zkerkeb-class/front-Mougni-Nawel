@@ -10,8 +10,8 @@ function LoadingSpinner({ size = "md", className = "" }) {
       <div
         className={`${sizeClasses[size]} border-[3px] border-silver border-t-royalblue rounded-full animate-spin`}
         style={{
-          borderColor: "#c0c0c0", // Argent doux
-          borderTopColor: "#4169e1", // Bleu royal
+          borderColor: "#c0c0c0",
+          borderTopColor: "#4169e1",
         }}
       />
     </div>

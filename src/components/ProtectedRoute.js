@@ -7,7 +7,6 @@ function ProtectedRoute({ children }) {
   const location = useLocation()
 
   if (!isAuthenticated) {
-    // Redirect to login page but save the current location
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 

@@ -30,7 +30,6 @@ function ContractPreview({ contractData, onEdit, onSubmit }) {
 
     let newContent = contractData.content
 
-    // Sort items by index in descending order to avoid offset issues when replacing
     const sortedItems = [...contractData.sensitiveItems].sort((a, b) => b.index - a.index)
 
     sortedItems.forEach((item) => {
